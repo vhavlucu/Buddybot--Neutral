@@ -1,1 +1,1 @@
-# Neutral-Bodybot
+# Neutral-Buddybot
