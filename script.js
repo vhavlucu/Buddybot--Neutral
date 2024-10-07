@@ -1,134 +1,152 @@
 let currentStepIndex = 0;  // Track which question in the flow we're on
 let currentOptions = {};  // Store current options
-let userName = '';  // Variable to store user's name
+let userName = '';  // Global variable to store user's name
+let ConversationFlow = []; // Initialize ConversationFlow
+let autoScrollEnabled = true; // Control for auto-scrolling
+let scrollIntervalId; // Variable to hold the scrolling interval
 
-// Define conversation flow with nested structure
-const conversationFlow = [
-  {
-    question: "Hi, my name is BuddyBot! What's your name?",
-    options: {}  // This will be dynamically handled since we're just asking for the name
-  },
-  {
-    question: `Nice to meet you, ${userName}! How are you today?`,  // Placeholder for personalized message
-    options: {
-      "Good": {
-        response: [
-          `Great to hear that you're doing well, ${userName}!`,
-          "What did you do today?",
-          "Anything exciting?"
-        ],
-        options: {
-          "Exercise": {
-            response: [
-              "That's a great way to stay healthy!",
-              "What kind of exercise do you do?"
-            ],
-            options: {
-              "Running": {
-                response: [
-                  "Running is fantastic!",
-                  "How often do you run?"
-                ],
-                options: {
-                  "Every day": {
-                    response: [`That's impressive, ${userName}! Keep up the great work!`]
-                  },
-                  "Few times a week": {
-                    response: ["That's a good frequency. Running regularly keeps you fit!"]
-                  }
-                }
-              }
+// Load the questions from the CSV file
+async function loadQuestions() {
+    const response = await fetch("empathic_responses.csv"); // Update with your CSV file path
+    const text = await response.text();
+
+    const rows = text.split('\n').map(row => row.split(';')); // Change delimiter to your preferred one
+
+    for (let index = 0; index < rows.length; index++) {
+        const row = rows[index];
+        const question = row[0].replace(/{Username}/g, userName); // Replace placeholder
+        const options = {};
+        let hasResponse = false; // Flag to check if there are responses
+
+        for (let i = 1; i < row.length; i += 2) {
+            if (row[i] && row[i + 1]) {
+                options[row[i]] = { response: [row[i + 1]] }; // Each option and response
+                hasResponse = true; // Mark as having a response
             }
-          },
-          "Relax": {
-            response: [`Relaxing is important! What did you do to relax, ${userName}?`]
-          }
         }
-      },
-      "Bad": {
-        response: [`I'm sorry to hear that, ${userName}. Is there anything I can do to help?`]
-      },
-      "Not Sure": {
-        response: ["That's okay. Take your time."]
-      }
-    }
-  },
-  {
-    question: `${userName}, what’s your favorite hobby?`,  // Personalized question
-    options: {
-      "Reading": {
-        response: ["Reading is wonderful! What type of books do you like?"]
-      },
-      "Gaming": {
-        response: ["Gaming is fun! What games do you play?"]
-      }
-    }
-  }
-];
 
-// Function to ask for the user's name and move to the next question
+        if (hasResponse) {
+            ConversationFlow.push({ question, options });
+        } else {
+            console.error(`Question "${question}" does not have any responses.`);
+            ConversationFlow.push({ question, options: { "No response available": { response: ["I'm sorry, but there's no response available."] } } });
+        }
+    }
+}
+
+// Testing paths (Separate from actual chat flow)
+async function testAllPaths() {
+    await loadQuestions(); // Ensure questions are loaded
+
+    let currentStepIndex = 0;
+    let pathsExplored = 0;
+
+    while (currentStepIndex < ConversationFlow.length) {
+        const currentStep = ConversationFlow[currentStepIndex];
+        const options = currentStep.options;
+
+        if (Object.keys(options).length === 0) {
+            console.error(`No options available for question at index ${currentStepIndex}: "${currentStep.question}"`);
+            break;
+        }
+
+        // Simulate choosing each option
+        for (const option in options) {
+            console.log(`Question: "${currentStep.question}"`);
+            console.log(`User selects: "${option}"`);
+
+            const response = options[option].response;
+
+            response.forEach((res) => {
+                console.log(`Chatbot responds: "${res}"`);
+            });
+
+            pathsExplored++;
+        }
+
+        currentStepIndex++; // Move to the next question
+    }
+
+    if (currentStepIndex === ConversationFlow.length) {
+        console.log(`All paths successfully explored. Total paths explored: ${pathsExplored}`);
+    } else {
+        console.error(`Stopped at question index: ${currentStepIndex}. Something went wrong.`);
+    }
+}
+
+// Ask for the username
 function askUserName() {
-  const conversation = document.getElementById('conversation');
-  const buttons = document.getElementById('buttons');
-
-  const nameInputHtml = `
-    <div class="message user">
-      <input type="text" id="userNameInput" placeholder="Enter your name" class="name-input">
-    </div>
-    <button class="chat-button" onclick="saveUserName()">Submit</button>
-  `;
-
-  conversation.innerHTML += `
-    <div class="message chatbot">
-      <img src="chatbot-profile.jpg" alt="Chatbot" class="chatbot-img">
-      <div class="bubble">Hi, my name is BuddyBot! What's your name?</div>
-    </div>
-  `;
-  
-  buttons.innerHTML = nameInputHtml;
-}
-
-function saveUserName() {
-  const nameInput = document.getElementById('userNameInput');
-  userName = nameInput.value;
-
-  if (userName) {
-    // Update the next question to include the user's name
-    conversationFlow[1].question = `Nice to meet you, ${userName}! How are you today?`;
-    conversationFlow[2].question = `${userName}, what’s your favorite hobby?`;
-
-    // Remove the input box and submit button
+    const conversation = document.getElementById('conversation');
     const buttons = document.getElementById('buttons');
-    buttons.innerHTML = '';  // Clear the buttons container
 
-    // Proceed with the next question
-    currentStepIndex++;
-    currentOptions = conversationFlow[currentStepIndex].options;
-    showQuestionAndOptions();
-  } else {
-    alert('Please enter your name.');
-  }
+    const introductionMessages = [
+        "Hi, my name is BuddyBot.",
+        "I will ask questions to get to know you better.",
+        "What would you like me to call you?"
+    ];
+
+    // Show the introduction messages sequentially
+    showMessagesSequentially(introductionMessages, () => {
+        const nameInputHtml = `
+            <div class="message user">
+                <input type="text" id="userNameInput" placeholder="Enter your name" class="name-input" onkeydown="checkEnter(event)">
+            </div>
+            <button class="chat-button" onclick="saveUserName()">Submit</button>
+        `;
+        buttons.innerHTML = nameInputHtml;
+    });
 }
 
-
-// Function to show a question and its options
-function showQuestionAndOptions() {
-  const currentStep = conversationFlow[currentStepIndex];
-  const conversation = document.getElementById('conversation');
-  const buttons = document.getElementById('buttons');
-
-  // Display the question
-  showMessagesSequentially([currentStep.question], () => {
-    // Once the question is shown, show the options as buttons if available
-    if (Object.keys(currentStep.options).length > 0) {
-      buttons.innerHTML = Object.keys(currentStep.options).map(option =>
-        `<button class="chat-button" onclick="respond('${option}')">${option}</button>`
-      ).join('');
+function checkEnter(event) {
+    if (event.key === 'Enter') {
+        saveUserName(); // Call the saveUserName function when Enter is pressed
     }
-  });
 }
 
-// Function to handle user responses and navigate through nested flows
+// Save the username and continue with the flow
+function saveUserName() {
+    const nameInput = document.getElementById('userNameInput');
+    userName = nameInput.value.trim();
+
+    if (userName) {
+        const conversation = document.getElementById('conversation');
+        conversation.innerHTML += `
+            <div class="message user">
+                <div class="bubble">${userName}</div>
+            </div>
+        `;
+
+        const buttons = document.getElementById('buttons');
+        buttons.innerHTML = '';  // Clear the buttons
+
+        // After saving the name, load the questions and start the conversation
+        loadQuestions().then(() => {
+            currentOptions = ConversationFlow[currentStepIndex].options;
+            showQuestionAndOptions();
+        });
+    } else {
+        alert('Please enter your name.');
+    }
+}
+
+// Show the current question and its options
+function showQuestionAndOptions() {
+    const currentStep = ConversationFlow[currentStepIndex];
+    const conversation = document.getElementById('conversation');
+    const buttons = document.getElementById('buttons');
+
+    // Display the question
+    showMessagesSequentially([currentStep.question], () => {
+        // Once the question is shown, show the options as buttons if available
+        if (Object.keys(currentStep.options).length > 0) {
+            buttons.innerHTML = Object.keys(currentStep.options).map(option =>
+                `<button class="chat-button" onclick="respond('${option}')">${option}</button>`
+            ).join('');
+        }
+    });
+}
+
+// Handle the user's response
 function respond(userInput) {
   const conversation = document.getElementById('conversation');
   const buttons = document.getElementById('buttons');
@@ -138,87 +156,115 @@ function respond(userInput) {
 
   // Add the user's response to the chat
   conversation.innerHTML += `
-    <div class="message user">
-      <div class="bubble">${userInput}</div>
-    </div>
+      <div class="message user">
+          <div class="bubble">${userInput}</div>
+      </div>
   `;
 
   // Clear buttons
   buttons.innerHTML = '';
 
+  // Debugging: Log user input
+  console.log(`User input received: ${userInput}`);
+  console.log(currentOptions); // Log current options
+
   if (userResponse) {
-    // Show the chatbot's response
-    showMessagesSequentially(userResponse.response, () => {
-      if (userResponse.options) {
-        // If there are nested options, update currentOptions and display them
-        currentOptions = userResponse.options;
-        buttons.innerHTML = Object.keys(userResponse.options).map(option =>
-          `<button class="chat-button" onclick="respond('${option}')">${option}</button>`
-        ).join('');
-      } else {
-        // If no more nested options, move to the next question in the flow
-        currentStepIndex++;
-        if (currentStepIndex < conversationFlow.length) {
-          currentOptions = conversationFlow[currentStepIndex].options;  // Update to next question's options
-          showQuestionAndOptions();  // Show the next question
-        } else {
-          // End the conversation
-          showMessagesSequentially(["Thanks for chatting!"]);
-        }
-      }
-    });
+      // Get chatbot responses and split them based on punctuation
+      const responses = userResponse.response.flatMap(response => response.split(/(?<=[.!?])\s+/));
+
+      // Show the chatbot's responses in sequence
+      showMessagesSequentially(responses, () => {
+          // Move to the next question in the flow
+          currentStepIndex++;
+
+          if (currentStepIndex < ConversationFlow.length) {
+              currentOptions = ConversationFlow[currentStepIndex].options;
+              showQuestionAndOptions();
+          } else {
+              // **End the conversation** by showing "Thanks for chatting!"
+              showMessagesSequentially(["Thanks for chatting!"], () => {
+                  buttons.innerHTML = '';  // Clear buttons if needed
+              });
+          }
+      });
+  } else {
+      console.error(`No response found for input: "${userInput}"`);
+      showMessagesSequentially(["I'm sorry, I didn't understand that."], () => {
+          showQuestionAndOptions(); // Show options again after misunderstanding
+      });
   }
 }
 
 // Function to show multiple messages in sequence with typing animation
 function showMessagesSequentially(messages, callback) {
-  const conversation = document.getElementById('conversation');
-  
-  let index = 0;
+    const conversation = document.getElementById('conversation');
 
-  function showNextMessage() {
-    if (index < messages.length) {
-      // Create new bubble for the message part
-      const bubble = document.createElement('div');
-      bubble.classList.add('message', 'chatbot');
-      bubble.innerHTML = `<img src="chatbot-profile.jpg" alt="Chatbot" class="chatbot-img"><div class="bubble"></div>`;
-      conversation.appendChild(bubble);
+    let index = 0;
 
-      // Get the bubble div and type the message into it
-      const bubbleText = bubble.querySelector('.bubble');
-      
-      // Typing effect
-      typeMessage(bubbleText, messages[index], () => {
-        index++;
-        setTimeout(showNextMessage, 500); // Delay before the next message
-      });
-    } else if (callback) {
-      callback(); // When all messages are done, show buttons
+    function showNextMessage() {
+        if (index < messages.length) {
+            const bubble = document.createElement('div');
+            bubble.classList.add('message', 'chatbot');
+            bubble.innerHTML = `<img src="chatbot-profile.jpg" alt="Chatbot" class="chatbot-img"><div class="bubble"></div>`;
+            conversation.appendChild(bubble);
+
+            const bubbleText = bubble.querySelector('.bubble');
+
+            // Typing effect
+            typeMessage(bubbleText, messages[index], () => {
+                index++;
+                setTimeout(showNextMessage, 500);
+            });
+        } else if (callback) {
+            callback();
+        }
     }
-  }
 
-  showNextMessage();
+    showNextMessage();
 }
 
 // Helper function for typing effect
 function typeMessage(element, message, callback) {
-  let index = 0;
-  const interval = setInterval(() => {
-    element.innerHTML += message.charAt(index);
-    index++;
-    if (index === message.length) {
-      clearInterval(interval);
-      if (callback) callback();  // Proceed after message finishes typing
+    let index = 0;
+    const typingInterval = -1; // Typing speed (50ms per character)
+
+    const interval = setInterval(() => {
+        element.innerHTML += message.charAt(index);
+        index++;
+        if (index === message.length) {
+            clearInterval(interval);
+            if (callback) callback();
+            scrollToBottom(); // Call scrollToBottom after typing completes
+        }
+    }, typingInterval);
+}
+
+// Function to scroll to the bottom of the page
+function scrollToBottom() {
+    if (autoScrollEnabled) {
+        if (scrollIntervalId) clearInterval(scrollIntervalId); // Clear existing interval
+        scrollIntervalId = setInterval(() => {
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        }, 5); // Scrolling every 5ms
     }
-  }, 50); // Typing speed (50ms per character)
 }
 
-// Function to initialize chat on page load
-function initializeChat() {
-  currentStepIndex = 0;  // Reset to first question
-  currentOptions = {};  // Reset options
-  askUserName();  // Start by asking for the user's name
+// Function to check if the user scrolled up in the chatbox or window
+function checkScrollPosition() {
+    const chatBox = document.getElementById('conversation');
+
+    const isChatBoxAtBottom = chatBox.scrollHeight - chatBox.clientHeight <= chatBox.scrollTop + 1;
+    const isWindowAtBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1;
+
+    autoScrollEnabled = isChatBoxAtBottom && isWindowAtBottom;
 }
 
-// Initialize chat on page load
-window.onload = initializeChat;
+// Add event listeners for scroll checking
+document.getElementById('conversation').addEventListener('scroll', checkScrollPosition);
+window.addEventListener('scroll', checkScrollPosition);
+
+// Start the conversation by asking for the user's name
+askUserName();
