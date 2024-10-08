@@ -183,7 +183,7 @@ function respond(userInput) {
               showQuestionAndOptions();
           } else {
               // **End the conversation** by showing "Thanks for chatting!"
-              showMessagesSequentially(["Thanks for chatting!"], () => {
+              showMessagesSequentially(["Okay, those are all te questions I have. Thanks for chatting!"], () => {
                   buttons.innerHTML = '';  // Clear buttons if needed
               });
           }
