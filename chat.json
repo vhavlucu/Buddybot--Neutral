@@ -7,7 +7,7 @@
                 "nextId": "2"
             },
             "Good": {
-                "response": "Noted. You reported that your day was great. That reflects a positive experience.",
+                "response": "Noted. You reported that your day was good. That reflects a positive experience.",
                 "nextId": "2"
             },
             "Okay": {
