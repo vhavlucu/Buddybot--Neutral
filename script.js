@@ -7,7 +7,7 @@ let typingEnabled = true; // Boolean to enable/disable typing animation
 // Function to load the conversation flow
 async function loadConversationData() {
     try {
-        const response = await fetch("conversation chat/chat.json");
+        const response = await fetch("chat.json");
         if (!response.ok) throw new Error("Network response was not ok");
 
         const jsonData = await response.json();
