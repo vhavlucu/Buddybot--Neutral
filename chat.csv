@@ -1,6 +1,6 @@
 Question ID,Question,Option,Response,Next ID
 1,Nice to meet you {Username}. How was your day?,Great,Noted. You reported that your day was great. That reflects a positive experience.,2
-1,Nice to meet you {Username}. How was your day?,Good,Noted. You reported that your day was great. That reflects a positive experience.,2
+1,Nice to meet you {Username}. How was your day?,Good,Noted. You reported that your day was good. That reflects a positive experience.,2
 1,Nice to meet you {Username}. How was your day?,Okay,Noted. You reported that your day was okay. That reflects a neutral experience.,6
 1,Nice to meet you {Username}. How was your day?,Not good,Noted. You reported that your day was not good. That reflects a negative experience.,6
 2,What made today so great?,Quality time with others,Got it. You indicated what made today so great was that: you spent quality time with others. ,3
