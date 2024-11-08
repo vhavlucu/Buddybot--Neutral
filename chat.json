@@ -87,11 +87,11 @@
         "question": "Who is the first person you tell when you accomplish something?",
         "options": {
             "My family": {
-                "response": "Acknowledged. That is recognised as enjoyable. Let us shift topics. I aim to gather additional information about you for a more comprehensive understanding.",
+                "response": "Acknowledged. That is recognized as enjoyable. Let us shift topics. I aim to gather additional information about you for a more comprehensive understanding.",
                 "nextId": "4"
             },
             "My friends": {
-                "response": "Acknowledged. That is recognised as enjoyable. Let us shift topics. I aim to gather additional information about you for a more comprehensive understanding.",
+                "response": "Acknowledged. That is recognized as enjoyable. Let us shift topics. I aim to gather additional information about you for a more comprehensive understanding.",
                 "nextId": "4"
             },
             "I keep it to myself": {
@@ -286,19 +286,19 @@
         "question": "When are you feeling down, how do you deal with it?",
         "options": {
             "I choose to be alone.": {
-                "response": "Thank you for your feedback, you prefer solitude and being on your own when you are feeling down. This can serve as an effective strategy to deal with it.",
+                "response": "Thank you for your feedback. You prefer solitude and being on your own when you are feeling down, which can serve as an effective strategy for dealing with it.",
                 "nextId": "18"
             },
             "I choose to talk to others.": {
-                "response": "Thank you for your feedback, it makes you feel better when you discuss your feelings and share them with others. This can be an effective strategy to deal with it.",
+                "response": "Thank you for your feedback. It makes you feel better when you discuss your feelings and share them with others. This can be an effective strategy to deal with it.",
                 "nextId": "17"
             },
             "I try to stay busy.": {
-                "response": "Thank you for your feedback, you try to occupy your mind by staying busy and avoiding thinking about what makes you feel down. This can be an effective strategy.",
+                "response": "Thank you for your feedback. You try to occupy your mind by staying busy and avoiding thinking about what makes you feel down. This can be an effective strategy.",
                 "nextId": "19"
             },
             "I try to distract myself by changing my focus.": {
-                "response": "Thank you for your feedback, you like directing your attention elsewhere and avoiding thinking about what makes you feel down. This can be an effective strategy.",
+                "response": "Thank you for your feedback. You like directing your attention elsewhere and avoiding thinking about what makes you feel down. This can be an effective strategy.",
                 "nextId": "20"
             }
         }
