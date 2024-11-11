@@ -120,7 +120,7 @@
                 "nextId": "4"
             },
             "I do not want to talk about this": {
-                "response": "Got. Input received. You prefer not to talk about it, let's move on with the conversation.",
+                "response": "Got it. Input received. You prefer not to talk about it, let's move on with the conversation.",
                 "nextId": "4"
             }
         }

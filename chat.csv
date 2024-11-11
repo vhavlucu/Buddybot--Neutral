@@ -22,7 +22,7 @@ Question ID,Question,Option,Response,Next ID
 6,Why do you think today was not good?,Frustrating obstacles.,"Got it. Input received. You have stated, that today was not good because things did not go to plan.",7
 6,Why do you think today was not good?,Felt anxious.,"Got it. Input received. Perhaps, engaging in enjoyable activities may provide assistance for you.",4
 6,Why do you think today was not good?,Poor connections,"Got it. Input received. Perhaps, engaging in enjoyable activities may provide assistance for you.",4
-6,Why do you think today was not good?,I do not want to talk about this,"Got. Input received. You prefer not to talk about it, let's move on with the conversation.",4
+6,Why do you think today was not good?,I do not want to talk about this,"Got it. Input received. You prefer not to talk about it, let's move on with the conversation.",4
 7,What type of challenges or obstacles did you face?,Work-related,Thank you for your input. Let us shift topics. I aim to gather additional information about you for a more comprehensive understanding.,4
 7,What type of challenges or obstacles did you face?,Personal,Thank you for your input. Let us shift topics. I aim to gather additional information about you for a more comprehensive understanding.,4
 7,What type of challenges or obstacles did you face?,Health-related,Thank you for your input. Let us shift topics. I aim to gather additional information about you for a more comprehensive understanding.,4
